@@ -30,3 +30,4 @@ bin/
 
 ### Mac OS ###
 /boveda.dat
+.gitignore

@@ -1,0 +1,106 @@
+package modulos;
+
+import modelos.UtilidadesCifrado;
+import javax.crypto.SecretKey;
+import java.io.Console;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class ModuloArchivos extends ModuloBase {
+
+    private final String contrasena;
+
+    public ModuloArchivos(String contrasena, Console console) {
+        super(console);
+        this.contrasena = contrasena;
+    }
+
+    @Override
+    public String obtenerNombre() {
+        return "Cifrador de Archivos";
+    }
+
+    @Override
+    public void ejecutar() throws Exception {
+        boolean continuar = true;
+        while (continuar) {
+            System.out.println("\n--- " + obtenerNombre() + " ---");
+            System.out.println("1. Cifrar archivo");
+            System.out.println("2. Descifrar archivo");
+            System.out.println("3. Regresar");
+            System.out.print("> ");
+
+            int opcion = leerOpcion();
+
+            switch (opcion) {
+                case 1: procesarArchivo(true); break;
+                case 2: procesarArchivo(false); break;
+                case 3: continuar = false; break;
+                default: System.out.println("Opción inválida.");
+            }
+        }
+    }
+
+    private void procesarArchivo(boolean esCifrado) {
+        System.out.print("Ruta del archivo: ");
+        String rutaTexto = leerLinea();
+
+        try {
+            Path rutaArchivo = Paths.get(rutaTexto);
+
+            if (!Files.exists(rutaArchivo) || Files.isDirectory(rutaArchivo)) {
+                System.out.println("Error: Archivo no encontrado.");
+                return;
+            }
+
+            // Validación simple de extensión
+            boolean tieneExtensionLocked = rutaArchivo.toString().endsWith(".locked");
+
+            if (esCifrado && tieneExtensionLocked) {
+                System.out.println("El archivo ya parece estar cifrado.");
+                return;
+            }
+            if (!esCifrado && !tieneExtensionLocked) {
+                System.out.println("Para descifrar, el archivo debe terminar en .locked");
+                return;
+            }
+
+            // 1. Leer archivo
+            byte[] datosEntrada = Files.readAllBytes(rutaArchivo);
+
+            // 2. Crear llave
+            SecretKey clave = UtilidadesCifrado.obtenerClaveDesdeContrasena(contrasena);
+
+            byte[] datosSalida;
+            Path rutaSalida;
+
+            if (esCifrado) {
+                // Cifrar
+                datosSalida = UtilidadesCifrado.cifrar(datosEntrada, clave);
+                rutaSalida = Paths.get(rutaTexto + ".locked");
+            } else {
+                // Descifrar
+                datosSalida = UtilidadesCifrado.descifrar(datosEntrada, clave);
+                // Quitar extensión .locked
+                String nombreOriginal = rutaTexto.substring(0, rutaTexto.length() - ".locked".length());
+                rutaSalida = Paths.get(nombreOriginal);
+            }
+
+            // 3. Guardar nuevo archivo
+            try (FileOutputStream salida = new FileOutputStream(rutaSalida.toFile())) {
+                salida.write(datosSalida);
+            }
+
+            // 4. Borrar original (para seguridad)
+            Files.delete(rutaArchivo);
+
+            System.out.println("Éxito. Archivo original eliminado.");
+            System.out.println("Nuevo archivo: " + rutaSalida);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}

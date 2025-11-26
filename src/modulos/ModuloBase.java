@@ -12,7 +12,7 @@ public abstract class ModuloBase {
         this.console = console;
     }
 
-    // Método utilitario para leer números
+    // Metodo utilitario para leer números
     protected int leerOpcion() {
         try {
             String linea = console.readLine().trim();
@@ -22,12 +22,12 @@ public abstract class ModuloBase {
         }
     }
 
-    // Método utilitario para leer texto
+    // Metodo utilitario para leer texto
     protected String leerLinea() {
         return console.readLine().trim();
     }
 
-    // --- MÉTODOS ABSTRACTOS (Polimorfismo) ---
+    // --- METODOS ABSTRACTOS (Polimorfismo) ---
 
     public abstract void ejecutar() throws Exception;
 

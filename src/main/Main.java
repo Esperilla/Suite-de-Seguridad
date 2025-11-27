@@ -40,7 +40,8 @@ public class Main {
             }
 
             // POLIMORFISMO: Usamos la clase Padre (ModuloBase) para referirnos a los hijos
-            ModuloBase moduloBoveda = new ModuloBoveda(boveda, almacenamiento, contrasenaActual, console);
+            // Nota: moduloBoveda es tipo concreto para acceder a getContrasena()
+            ModuloBoveda moduloBoveda = new ModuloBoveda(boveda, almacenamiento, contrasenaActual, console);
             ModuloBase moduloArchivos = new ModuloArchivos(contrasenaActual, console);
 
             // Menú Principal
@@ -57,6 +58,13 @@ public class Main {
                 switch (opcion) {
                     case "1":
                         moduloBoveda.ejecutar();
+                        // Verificar si la contraseña cambió durante la ejecución
+                        if (!contrasenaActual.equals(moduloBoveda.getContrasena())) {
+                            contrasenaActual = moduloBoveda.getContrasena();
+                            // Recrear ModuloArchivos con la nueva contraseña
+                            moduloArchivos = new ModuloArchivos(contrasenaActual, console);
+                            System.out.println("(El Cifrador de Archivos ahora usa la nueva contraseña)");
+                        }
                         break;
                     case "2":
                         moduloArchivos.ejecutar();

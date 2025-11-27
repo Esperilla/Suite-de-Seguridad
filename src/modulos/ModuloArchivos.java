@@ -45,7 +45,16 @@ public class ModuloArchivos extends ModuloBase {
 
     private void procesarArchivo(boolean esCifrado) {
         System.out.print("Ruta del archivo: ");
-        String rutaTexto = leerLinea();
+        // Leer directamente del console sin usar leerLinea() que hace trim()
+        String rutaTexto = console.readLine();
+
+        if (rutaTexto == null || rutaTexto.isEmpty()) {
+            System.out.println("Error: No se ingresó ninguna ruta.");
+            return;
+        }
+
+        // Limpiar espacios al inicio y final
+        rutaTexto = rutaTexto.trim();
 
         // Limpiar comillas al inicio y final si el usuario las incluyó
         if ((rutaTexto.startsWith("\"") && rutaTexto.endsWith("\"")) ||

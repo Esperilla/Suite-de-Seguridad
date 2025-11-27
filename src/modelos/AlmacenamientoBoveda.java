@@ -1,11 +1,38 @@
 package modelos;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import javax.crypto.SecretKey;
 
 public class AlmacenamientoBoveda {
 
-    private static final String NOMBRE_ARCHIVO = "boveda.dat";
+    private static final String NOMBRE_ARCHIVO;
+
+    static {
+        String rutaCalculada;
+        try {
+            // Obtener la ubicación base del classpath (carpeta out/)
+            File ubicacionClase = new File(
+                    AlmacenamientoBoveda.class.getProtectionDomain()
+                            .getCodeSource()
+                            .getLocation()
+                            .toURI()
+            );
+
+            // getCodeSource() devuelve la raíz del classpath (out/), subir 1 nivel para llegar a la raíz del proyecto
+            File raizProyecto = ubicacionClase.getParentFile();
+
+            rutaCalculada = new File(raizProyecto, "boveda.dat").getAbsolutePath();
+
+            System.out.println("[INFO] Ruta de boveda.dat: " + rutaCalculada);
+
+        } catch (URISyntaxException | NullPointerException e) {
+            // Fallback a ruta relativa si falla la detección
+            rutaCalculada = "boveda.dat";
+            System.out.println("[ADVERTENCIA] No se pudo calcular la ruta absoluta, usando ruta relativa: " + rutaCalculada);
+        }
+        NOMBRE_ARCHIVO = rutaCalculada;
+    }
 
 
     public boolean existeBoveda() {

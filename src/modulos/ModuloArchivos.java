@@ -44,7 +44,7 @@ public class ModuloArchivos extends ModuloBase {
     }
 
     private void procesarArchivo(boolean esCifrado) {
-        System.out.print("Ruta del archivo (usa / en lugar de \\ y no acepta comillas): ");
+        System.out.print("Ruta del archivo (usa / en lugar de \\ y sin comillas): ");
         // Leer directamente del console sin usar leerLinea() que hace trim()
         String rutaTexto = console.readLine();
 

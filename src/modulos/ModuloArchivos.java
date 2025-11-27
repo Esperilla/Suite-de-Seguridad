@@ -86,15 +86,18 @@ public class ModuloArchivos extends ModuloBase {
             byte[] datosSalida;
             Path rutaSalida;
 
+            // Usar la ruta absoluta normalizada para la salida
+            String rutaAbsoluta = rutaArchivo.toString();
+
             if (esCifrado) {
                 // Cifrar
                 datosSalida = UtilidadesCifrado.cifrar(datosEntrada, clave);
-                rutaSalida = Paths.get(rutaTexto + ".locked");
+                rutaSalida = Paths.get(rutaAbsoluta + ".locked");
             } else {
                 // Descifrar
                 datosSalida = UtilidadesCifrado.descifrar(datosEntrada, clave);
                 // Quitar extensión .locked
-                String nombreOriginal = rutaTexto.substring(0, rutaTexto.length() - ".locked".length());
+                String nombreOriginal = rutaAbsoluta.substring(0, rutaAbsoluta.length() - ".locked".length());
                 rutaSalida = Paths.get(nombreOriginal);
             }
 

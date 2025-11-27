@@ -47,11 +47,21 @@ public class ModuloArchivos extends ModuloBase {
         System.out.print("Ruta del archivo: ");
         String rutaTexto = leerLinea();
 
-        try {
-            Path rutaArchivo = Paths.get(rutaTexto);
+        // Limpiar comillas si el usuario las incluyó
+        rutaTexto = rutaTexto.replace("\"", "").replace("'", "");
 
-            if (!Files.exists(rutaArchivo) || Files.isDirectory(rutaArchivo)) {
+        try {
+            // Normalizar la ruta para manejar rutas absolutas correctamente
+            Path rutaArchivo = Paths.get(rutaTexto).toAbsolutePath().normalize();
+
+            if (!Files.exists(rutaArchivo)) {
                 System.out.println("Error: Archivo no encontrado.");
+                System.out.println("Ruta buscada: " + rutaArchivo);
+                return;
+            }
+
+            if (Files.isDirectory(rutaArchivo)) {
+                System.out.println("Error: La ruta corresponde a un directorio, no a un archivo.");
                 return;
             }
 

@@ -100,4 +100,104 @@ public class ModuloBoveda extends ModuloBase {
             }
         }
     }
+
+    /**
+     * Permite cambiar la contraseña maestra de la bóveda.
+     * Valida la contraseña actual (máximo 3 intentos), aplica política de seguridad
+     * a la nueva contraseña, y re-cifra la bóveda.
+     *
+     * @return true si el cambio fue exitoso, false si se canceló o falló
+     */
+    public boolean cambiarContrasenaMaestra() {
+        System.out.println("\n--- Cambiar Contraseña Maestra ---");
+
+        // Paso 1: Verificar contraseña actual (máximo 3 intentos)
+        int intentos = 0;
+        boolean contrasenaVerificada = false;
+
+        while (intentos < MAX_INTENTOS_CONTRASENA && !contrasenaVerificada) {
+            String contrasenaIngresada = leerContrasenaOculta("Ingrese su contraseña actual: ");
+
+            try {
+                // Intentamos cargar la bóveda para verificar la contraseña
+                almacenamiento.cargarBoveda(contrasenaIngresada);
+                contrasenaVerificada = true;
+            } catch (Exception e) {
+                intentos++;
+                int restantes = MAX_INTENTOS_CONTRASENA - intentos;
+                if (restantes > 0) {
+                    System.out.println("⚠ Contraseña incorrecta. Intentos restantes: " + restantes);
+                } else {
+                    System.out.println("\n✖ Se agotaron los intentos. Operación cancelada por seguridad.");
+                    return false;
+                }
+            }
+        }
+
+        // Paso 2: Mostrar requisitos y advertencia
+        System.out.println();
+        System.out.println(UtilidadesCifrado.REQUISITOS_CONTRASENA);
+        System.out.println();
+        System.out.println("⚠ ADVERTENCIA: Los archivos .locked cifrados con el Cifrador de Archivos");
+        System.out.println("  seguirán usando la contraseña anterior. Descífrelos antes de cambiar");
+        System.out.println("  la contraseña o recuerde la contraseña antigua.");
+        System.out.println();
+
+        // Paso 3: Solicitar y validar nueva contraseña
+        String nuevaContrasena;
+        String errorValidacion = null;
+
+        do {
+            nuevaContrasena = leerContrasenaOculta("Nueva contraseña: ");
+
+            // Verificar que no sea igual a la actual
+            if (nuevaContrasena.equals(contrasena)) {
+                System.out.println("\n⚠ La nueva contraseña no puede ser igual a la actual.");
+                System.out.println("Intenta de nuevo.\n");
+                errorValidacion = "igual"; // Marcador para continuar el bucle
+                continue;
+            }
+
+            errorValidacion = UtilidadesCifrado.validarPoliticaContrasena(nuevaContrasena);
+
+            if (errorValidacion != null) {
+                System.out.println("\n⚠ " + errorValidacion);
+                System.out.println("Intenta de nuevo.\n");
+            }
+        } while (errorValidacion != null);
+
+        // Paso 4: Confirmar nueva contraseña
+        String confirmacion = leerContrasenaOculta("Confirme la nueva contraseña: ");
+
+        if (!nuevaContrasena.equals(confirmacion)) {
+            System.out.println("\n✖ Las contraseñas no coinciden. Operación cancelada.");
+            return false;
+        }
+
+        // Paso 5: Re-cifrar la bóveda con la nueva contraseña
+        try {
+            almacenamiento.guardarBoveda(boveda, nuevaContrasena);
+            this.contrasena = nuevaContrasena;
+            System.out.println("\n✔ ¡Contraseña maestra cambiada exitosamente!");
+            return true;
+        } catch (Exception e) {
+            System.out.println("\n✖ Error al guardar la bóveda: " + e.getMessage());
+            System.out.println("La contraseña NO fue cambiada.");
+            return false;
+        }
+    }
+
+    /**
+     * Lee una contraseña ocultando la entrada del usuario.
+     */
+    private String leerContrasenaOculta(String mensaje) {
+        char[] passwordArray = console.readPassword(mensaje);
+        if (passwordArray == null || passwordArray.length == 0) {
+            return "";
+        }
+        String resultado = new String(passwordArray);
+        // Limpiamos el array por seguridad
+        java.util.Arrays.fill(passwordArray, '\0');
+        return resultado;
+    }
 }

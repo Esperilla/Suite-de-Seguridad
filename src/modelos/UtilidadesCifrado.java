@@ -17,6 +17,57 @@ public class UtilidadesCifrado {
     private static final int GCM_IV_LENGTH = 12; // Longitud recomendada para IV en GCM
     private static final int GCM_TAG_LENGTH = 128; // Bits para el tag de autenticación
 
+    // Constantes para política de contraseñas
+    private static final int LONGITUD_MINIMA_CONTRASENA = 8;
+    private static final String CARACTERES_ESPECIALES = "!@#$%^&*()-_=+[]{}|;:',.<>?/~`";
+
+    /**
+     * Mensaje con los requisitos de contraseña para mostrar al usuario.
+     */
+    public static final String REQUISITOS_CONTRASENA =
+            "Requisitos de la contraseña:\n" +
+                    "  • Mínimo 8 caracteres\n" +
+                    "  • Al menos una letra mayúscula\n" +
+                    "  • Al menos un número\n" +
+                    "  • Al menos un carácter especial (!@#$%^&* etc.)";
+
+    /**
+     * Valida que una contraseña cumpla con la política de seguridad.
+     * @param contrasena La contraseña a validar
+     * @return null si la contraseña es válida, o un String con el error específico
+     */
+    public static String validarPoliticaContrasena(String contrasena) {
+        if (contrasena == null || contrasena.length() < LONGITUD_MINIMA_CONTRASENA) {
+            return "La contraseña debe tener al menos " + LONGITUD_MINIMA_CONTRASENA + " caracteres.";
+        }
+
+        boolean tieneMayuscula = false;
+        boolean tieneNumero = false;
+        boolean tieneEspecial = false;
+
+        for (char c : contrasena.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                tieneMayuscula = true;
+            } else if (Character.isDigit(c)) {
+                tieneNumero = true;
+            } else if (CARACTERES_ESPECIALES.indexOf(c) != -1) {
+                tieneEspecial = true;
+            }
+        }
+
+        if (!tieneMayuscula) {
+            return "La contraseña debe contener al menos una letra mayúscula.";
+        }
+        if (!tieneNumero) {
+            return "La contraseña debe contener al menos un número.";
+        }
+        if (!tieneEspecial) {
+            return "La contraseña debe contener al menos un carácter especial (!@#$%^&* etc.).";
+        }
+
+        return null; // Contraseña válida
+    }
+
     /**
      * Convierte texto (contraseña) en una Llave secreta válida para AES.
      */

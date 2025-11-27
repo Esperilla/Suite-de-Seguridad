@@ -2,6 +2,7 @@ package main;
 
 import modelos.Boveda;
 import modelos.AlmacenamientoBoveda;
+import modelos.UtilidadesCifrado;
 import modulos.ModuloBase;
 import modulos.ModuloArchivos;
 import modulos.ModuloBoveda;
@@ -79,13 +80,26 @@ public class Main {
     private static void crearNuevaBoveda() throws Exception {
         System.out.println("\n--- Configuración Inicial ---");
         System.out.println("Bienvenido. Crea una contraseña maestra.");
+        System.out.println();
+        System.out.println(UtilidadesCifrado.REQUISITOS_CONTRASENA);
+        System.out.println();
 
-        String nuevaContra = leerContrasena("Nueva contraseña: ");
+        String nuevaContra;
+        String errorValidacion;
+
+        // Bucle hasta que la contraseña cumpla la política
+        do {
+            nuevaContra = leerContrasena("Nueva contraseña: ");
+            errorValidacion = UtilidadesCifrado.validarPoliticaContrasena(nuevaContra);
+
+            if (errorValidacion != null) {
+                System.out.println("\n⚠ " + errorValidacion);
+                System.out.println("Intenta de nuevo.\n");
+            }
+        } while (errorValidacion != null);
+
         String nuevaContraVerificada = leerContrasena("Confirma contraseña: ");
 
-        if (nuevaContra == null || nuevaContra.trim().isEmpty()) {
-            throw new Exception("La contraseña no puede estar vacía.");
-        }
         if (!nuevaContra.equals(nuevaContraVerificada)) {
             throw new Exception("Las contraseñas no coinciden.");
         }

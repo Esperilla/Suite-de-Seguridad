@@ -4,6 +4,7 @@ import modelos.Boveda;
 import modelos.AlmacenamientoBoveda;
 import modelos.UtilidadesCifrado;
 import java.io.Console;
+import java.util.List;
 
 public class ModuloBoveda extends ModuloBase {
 
@@ -87,9 +88,12 @@ public class ModuloBoveda extends ModuloBase {
                     boveda.eliminarSecreto(eliminar);
                     break;
                 case 5:
-                    cambiarContrasenaMaestra();
+                    actualizarSecreto();
                     break;
                 case 6:
+                    cambiarContrasenaMaestra();
+                    break;
+                case 7:
                     System.out.println("Guardando...");
                     almacenamiento.guardarBoveda(boveda, contrasena);
                     System.out.println("¡Guardado! Regresando...");
@@ -199,5 +203,113 @@ public class ModuloBoveda extends ModuloBase {
         // Limpiamos el array por seguridad
         java.util.Arrays.fill(passwordArray, '\0');
         return resultado;
+    }
+    /**
+     * Busca secretos de forma inteligente y muestra los resultados al usuario.
+     * Si hay múltiples coincidencias, permite seleccionar cuál ver.
+     * Utiliza el algoritmo de Levenshtein para tolerancia a errores tipográficos.
+     *
+     * @param patron Patrón de búsqueda ingresado por el usuario
+     */
+    private void buscarYMostrarSecreto(String patron){
+        List<String> resultados = boveda.buscarSecretosInteligente(patron, 10);
+        if (resultados.isEmpty()) {
+            System.out.println("\n⚠ No se encontraron secretos que coincidan con '" + patron + "'.");
+            System.out.println("Sugerencia: Use la opción 'Listar secretos' para ver todos los disponibles.");
+            return;
+        }
+        // Si hay exactamente una coincidencia, mostrar directamente
+        if (resultados.size() == 1) {
+            String nombreSecreto = resultados.get(0);
+            System.out.println("\n✔ Secreto encontrado: " + nombreSecreto);
+            System.out.println("Valor: " + boveda.obtenerSecreto(nombreSecreto));
+            return;
+        }
+        // Múltiples coincidencias: mostrar lista y permitir selección
+        System.out.println("\n🔍 Se encontraron " + resultados.size() + " coincidencias:");
+        System.out.println("───────────────────────────────");
+        for (int i = 0; i < resultados.size(); i++) {
+            System.out.println((i + 1) + ". " + resultados.get(i));
+        }
+        System.out.println("0. Cancelar busqueda");
+        System.out.println("───────────────────────────────");
+
+        System.out.print("Seleccione un número: ");
+        int seleccion = leerOpcion();
+
+        if (seleccion == 0) {
+            System.out.println("Búsqueda cancelada.");
+            return;
+        }
+
+        if (seleccion < 1 || seleccion > resultados.size()) {
+            System.out.println("⚠ Selección inválida.");
+            return;
+        }
+        String nombreSeleccionado = resultados.get(seleccion - 1);
+        System.out.println("\n✔ Secreto: " + nombreSeleccionado);
+        System.out.println("Valor: " + boveda.obtenerSecreto(nombreSeleccionado));
+
+    }
+    /**
+     * Permite actualizar el valor de un secreto existente.
+     * Utiliza búsqueda inteligente para encontrar el secreto y solicita confirmación
+     * antes de realizar la actualización.
+     */
+    private void actualizarSecreto() {
+        System.out.print("Buscar secreto a actualizar: ");
+        String patron = leerLinea();
+
+        List<String> resultados = boveda.buscarSecretosInteligente(patron, 10);
+
+        if (resultados.isEmpty()) {
+            System.out.println("\n⚠ No se encontraron secretos que coincidan con '" + patron + "'.");
+            System.out.println("Sugerencia: Use la opción 'Listar secretos' para ver todos los disponibles.");
+            return;
+        }
+        String nombreSecreto;
+        // Si hay exactamente una coincidencia, usar directamente
+        if (resultados.size() == 1) {
+            nombreSecreto = resultados.get(0);
+            System.out.println("\n✔ Secreto encontrado: " + nombreSecreto);
+        } else {
+            // Múltiples coincidencias: mostrar lista y permitir selección
+            System.out.println("\n🔍 Se encontraron " + resultados.size() + " coincidencias:");
+            System.out.println("───────────────────────────────");
+            for (int i = 0; i < resultados.size(); i++) {
+                System.out.println((i + 1) + ". " + resultados.get(i));
+            }
+            System.out.println("0. Cancelar");
+            System.out.println("───────────────────────────────");
+
+            System.out.print("Seleccione un número: ");
+            int seleccion = leerOpcion();
+            if (seleccion == 0) {
+                System.out.println("Actualización cancelada.");
+                return;
+            }
+            if (seleccion < 1 || seleccion > resultados.size()) {
+                System.out.println("⚠ Selección inválida.");
+                return;
+            }
+            nombreSecreto = resultados.get(seleccion - 1);
+        }
+
+        // Mostrar valor actual
+        String valorActual = boveda.obtenerSecreto(nombreSecreto);
+        System.out.println("Valor actual: " + valorActual);
+
+        // Solicitar confirmación
+        System.out.print("\n¿Desea modificar este secreto? (S/N): ");
+        String confirmacion = leerLinea().trim().toUpperCase();
+        if (!confirmacion.equals("S")) {
+            System.out.println("Actualización cancelada.");
+            return;
+        }
+        // Solicitar nuevo valor
+        System.out.print("Nuevo valor del secreto: ");
+        String nuevoValor = leerLinea();
+        // Actualizar el secreto
+        boveda.actualizarSecreto(nombreSecreto, nuevoValor);
     }
 }

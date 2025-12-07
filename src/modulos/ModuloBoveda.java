@@ -50,9 +50,9 @@ public class ModuloBoveda extends ModuloBase {
                 System.out.println("2. Ver secreto");
                 System.out.println("3. Listar secretos");
                 System.out.println("4. Eliminar secreto");
-                System.out.println("5. Actualizar secreto");        //NUEVA
-                System.out.println("6. Cambiar contraseña maestra");        //NUEVA
-                System.out.println("7. Guardar y Regresar");        //NUEVA
+                System.out.println("5. Actualizar secreto");        
+                System.out.println("6. Cambiar contraseña maestra");       
+                System.out.println("7. Guardar y Regresar");      
             }
             System.out.print("> ");
 
@@ -61,8 +61,8 @@ public class ModuloBoveda extends ModuloBase {
             // Ajuste de lógica si está vacía (para que el menú coincida)
             if (estaVacia) {
                 // Menú vacío: 1=Agregar, 2=Cambiar contraseña, 3=Guardar
-                if (opcion == 2) opcion = 6; // Cambiar contraseña      //NUEVA
-                else if (opcion == 3) opcion = 7; // Guardar y regresar     //NUEVA
+                if (opcion == 2) opcion = 6; // Cambiar contraseña      
+                else if (opcion == 3) opcion = 7; // Guardar y regresar    
                 else if (opcion != 1) opcion = -1;
             }
 
@@ -89,12 +89,12 @@ public class ModuloBoveda extends ModuloBase {
                     boveda.eliminarSecreto(eliminar);
                     break;
                 case 5:
-                    actualizarSecreto();        //NUEVA
-                    break;      //NUEVA
-                case 6:     //NUEVA
+                    actualizarSecreto();        
+                    break;      
+                case 6:     
                     cambiarContrasenaMaestra();
                     break;
-                case 7:     //NUEVA
+                case 7:     
                     System.out.println("Guardando...");
                     almacenamiento.guardarBoveda(boveda, contrasena);
                     System.out.println("¡Guardado! Regresando...");
@@ -257,7 +257,7 @@ public class ModuloBoveda extends ModuloBase {
         System.out.println("Valor: " + boveda.obtenerSecreto(nombreSeleccionado));
     }
 
-    /**     //DESDE AQUÍ HASTA LA 328 SON NUEVAS
+    /**     
      * Permite actualizar el valor de un secreto existente.
      * Utiliza búsqueda inteligente para encontrar el secreto y solicita confirmación
      * antes de realizar la actualización.
@@ -325,5 +325,5 @@ public class ModuloBoveda extends ModuloBase {
 
         // Actualizar el secreto
         boveda.actualizarSecreto(nombreSecreto, nuevoValor);
-    }   //HASTA AQUÍ SON NUEVAS
+    }   
 }

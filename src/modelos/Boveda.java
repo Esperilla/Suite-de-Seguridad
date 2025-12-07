@@ -1,7 +1,12 @@
 package modelos;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +49,35 @@ public class Boveda implements Serializable {
             System.out.println("Error: No se encontró el secreto '" + nombre + "'.");
         }
     }
-// --- Métodos de Búsqueda Inteligente ---      //DESDE AQUÍ HASTA LA LÍNEA 160 SON NUEVAS
+
+    /**     //DESDE AQUI HASTA LA 78 SON NUEVAS
+     * Verifica si un secreto existe en la bóveda.
+     *
+     * @param nombre Nombre del secreto a verificar
+     * @return true si el secreto existe, false en caso contrario
+     */
+    public boolean existeSecreto(String nombre) {
+        return secretos.containsKey(nombre);
+    }
+
+    /**
+     * Actualiza el valor de un secreto existente.
+     *
+     * @param nombre Nombre del secreto a actualizar
+     * @param nuevoValor Nuevo valor para el secreto
+     * @return true si se actualizó correctamente, false si el secreto no existe
+     */
+    public boolean actualizarSecreto(String nombre, String nuevoValor) {
+        if (!secretos.containsKey(nombre)) {
+            System.out.println("Error: El secreto '" + nombre + "' no existe.");
+            return false;
+        }
+        secretos.put(nombre, nuevoValor);
+        System.out.println("✔ Secreto '" + nombre + "' actualizado correctamente.");
+        return true;
+    } //FIN DE LAS NUEVAS
+
+    // --- Métodos de Búsqueda Inteligente ---
 
     /**
      * Calcula la distancia de Levenshtein entre dos cadenas.
@@ -57,8 +90,10 @@ public class Boveda implements Serializable {
      */
     private int calcularDistanciaLevenshtein(String a, String b) {
         a = a.toLowerCase();
-        b= b.toLowerCase();
+        b = b.toLowerCase();
+
         int[][] dp = new int[a.length() + 1][b.length() + 1];
+
         // Inicializar primera columna y fila
         for (int i = 0; i <= a.length(); i++) {
             dp[i][0] = i;
@@ -66,6 +101,7 @@ public class Boveda implements Serializable {
         for (int j = 0; j <= b.length(); j++) {
             dp[0][j] = j;
         }
+
         // Llenar la matriz
         for (int i = 1; i <= a.length(); i++) {
             for (int j = 1; j <= b.length(); j++) {
@@ -82,6 +118,7 @@ public class Boveda implements Serializable {
 
         return dp[a.length()][b.length()];
     }
+
     /**
      * Calcula una puntuación de similitud para ordenar resultados.
      * Menor puntuación = mayor relevancia.
@@ -91,26 +128,30 @@ public class Boveda implements Serializable {
      * @param patron Patrón de búsqueda del usuario
      * @return Puntuación de similitud (menor es mejor)
      */
-    private int calcularPuntuacionSimilitud(String nombreSecreto, String patron){
+    private int calcularPuntuacionSimilitud(String nombreSecreto, String patron) {
         String nombreLower = nombreSecreto.toLowerCase();
         String patronLower = patron.toLowerCase();
 
-        // Coincidencia exacta (maxima prioridad)
+        // Coincidencia exacta (máxima prioridad)
         if (nombreLower.equals(patronLower)) {
             return 0;
         }
+
         // Comienza con el patrón
         if (nombreLower.startsWith(patronLower)) {
             return 1;
         }
+
         // Contiene el patrón
         if (nombreLower.contains(patronLower)) {
             return 2;
         }
+
         // Distancia Levenshtein (ajustada para ordenamiento)
         int distancia = calcularDistanciaLevenshtein(nombreSecreto, patron);
         return 10 + distancia; // Base de 10 para que Levenshtein tenga menor prioridad que contains
     }
+
     /**
      * Busca secretos de forma inteligente usando múltiples estrategias:
      * 1. Coincidencia exacta (ignorando mayúsculas/minúsculas)
@@ -122,10 +163,12 @@ public class Boveda implements Serializable {
      * @return Lista de nombres de secretos ordenados por relevancia
      */
     public List<String> buscarSecretosInteligente(String patron, int maxResultados) {
-        if (patron == null || patron.trim().isEmpty()){
+        if (patron == null || patron.trim().isEmpty()) {
             return new ArrayList<>();
         }
+
         String patronLower = patron.toLowerCase().trim();
+
         // Umbral dinámico basado en la longitud del patrón:
         // - Patrón de 1-2 caracteres: solo coincidencia exacta o contains (umbral 0)
         // - Patrón de 3-4 caracteres: permitir 1 error tipográfico
@@ -141,26 +184,28 @@ public class Boveda implements Serializable {
         } else {
             umbralLevenshtein = 3;
         }
+
         final int umbralFinal = umbralLevenshtein;
+
         // Filtrar secretos que coincidan por algún criterio
         List<String> resultados = secretos.keySet().stream()
                 .filter(nombre -> nombre != null && !nombre.trim().isEmpty()) // Ignorar nombres vacíos
-                .filter(nombre ->{
+                .filter(nombre -> {
                     String nombreLower = nombre.toLowerCase().trim();
-// Incluir si: coincide exacto, contiene el patrón, o distancia Levenshtein <= umbral
+                    // Incluir si: coincide exacto, contiene el patrón, o distancia Levenshtein <= umbral
                     boolean coincideExacto = nombreLower.equals(patronLower);
                     boolean contienePatron = nombreLower.contains(patronLower);
                     boolean cercanoLevenshtein = umbralFinal > 0 &&
                             calcularDistanciaLevenshtein(nombreLower, patronLower) <= umbralFinal;
+
                     return coincideExacto || contienePatron || cercanoLevenshtein;
                 })
                 .sorted(Comparator.comparingInt(nombre -> calcularPuntuacionSimilitud(nombre, patron)))
                 .limit(maxResultados)
                 .collect(Collectors.toList());
+
         return resultados;
-
     }
-
 
     // --- Métodos de Serialización (Conversión a bytes) ---
 
@@ -203,29 +248,4 @@ public class Boveda implements Serializable {
             }
         }
     }
-    /* Verifica si un secreto existe en la boveda.
-    * @param nombre Nombre del secreto a verificar
-    * @return true si el secreto existe, false en caso contrario
-     */
-    public boolean existeSecreto (String nombre) {
-        return secretos.containsKey(nombre);
-    }
-/**
- *Actualiza el valor de un secreto existente.
- *@param nombre Nombre del secreto a actualizar
- *@param nuevoValor Nuevo valor para el secreto
- *@return true si se actualizó correctamente, false si el secreto no existe
- */
-public boolean actualizarSecreto (String nombre, String nuevoValor) {
-    if (!secretos.containsKey(nombre)) {
-        System.out.println("Error: El secreto: " + nombre + "no existe");
-        return false;
-    }
-        secretos.put(nombre, nuevoValor);
-        System.out.println("Secreto " + nombre + "actualizado correctamente");
-        return true;
-    }
-
-
 }
-

@@ -50,8 +50,9 @@ public class ModuloBoveda extends ModuloBase {
                 System.out.println("2. Ver secreto");
                 System.out.println("3. Listar secretos");
                 System.out.println("4. Eliminar secreto");
-                System.out.println("5. Cambiar contraseña maestra");
-                System.out.println("6. Guardar y Regresar");
+                System.out.println("5. Actualizar secreto");        //NUEVA
+                System.out.println("6. Cambiar contraseña maestra");        //NUEVA
+                System.out.println("7. Guardar y Regresar");        //NUEVA
             }
             System.out.print("> ");
 
@@ -60,8 +61,8 @@ public class ModuloBoveda extends ModuloBase {
             // Ajuste de lógica si está vacía (para que el menú coincida)
             if (estaVacia) {
                 // Menú vacío: 1=Agregar, 2=Cambiar contraseña, 3=Guardar
-                if (opcion == 2) opcion = 5; // Cambiar contraseña
-                else if (opcion == 3) opcion = 6; // Guardar y regresar
+                if (opcion == 2) opcion = 6; // Cambiar contraseña      //NUEVA
+                else if (opcion == 3) opcion = 7; // Guardar y regresar     //NUEVA
                 else if (opcion != 1) opcion = -1;
             }
 
@@ -74,9 +75,9 @@ public class ModuloBoveda extends ModuloBase {
                     boveda.agregarSecreto(nombre, valor);
                     break;
                 case 2:
-                    System.out.print("Nombre a buscar: ");
+                    System.out.print("Buscar secreto: ");
                     String buscar = leerLinea();
-                    System.out.println("Valor: " + boveda.obtenerSecreto(buscar));
+                    buscarYMostrarSecreto(buscar);
                     break;
                 case 3:
                     System.out.println("--- Lista de Secretos ---");
@@ -88,12 +89,12 @@ public class ModuloBoveda extends ModuloBase {
                     boveda.eliminarSecreto(eliminar);
                     break;
                 case 5:
-                    actualizarSecreto();
-                    break;
-                case 6:
+                    actualizarSecreto();        //NUEVA
+                    break;      //NUEVA
+                case 6:     //NUEVA
                     cambiarContrasenaMaestra();
                     break;
-                case 7:
+                case 7:     //NUEVA
                     System.out.println("Guardando...");
                     almacenamiento.guardarBoveda(boveda, contrasena);
                     System.out.println("¡Guardado! Regresando...");
@@ -204,6 +205,7 @@ public class ModuloBoveda extends ModuloBase {
         java.util.Arrays.fill(passwordArray, '\0');
         return resultado;
     }
+
     /**
      * Busca secretos de forma inteligente y muestra los resultados al usuario.
      * Si hay múltiples coincidencias, permite seleccionar cuál ver.
@@ -211,13 +213,15 @@ public class ModuloBoveda extends ModuloBase {
      *
      * @param patron Patrón de búsqueda ingresado por el usuario
      */
-    private void buscarYMostrarSecreto(String patron){
+    private void buscarYMostrarSecreto(String patron) {
         List<String> resultados = boveda.buscarSecretosInteligente(patron, 10);
+
         if (resultados.isEmpty()) {
             System.out.println("\n⚠ No se encontraron secretos que coincidan con '" + patron + "'.");
             System.out.println("Sugerencia: Use la opción 'Listar secretos' para ver todos los disponibles.");
             return;
         }
+
         // Si hay exactamente una coincidencia, mostrar directamente
         if (resultados.size() == 1) {
             String nombreSecreto = resultados.get(0);
@@ -225,13 +229,14 @@ public class ModuloBoveda extends ModuloBase {
             System.out.println("Valor: " + boveda.obtenerSecreto(nombreSecreto));
             return;
         }
+
         // Múltiples coincidencias: mostrar lista y permitir selección
         System.out.println("\n🔍 Se encontraron " + resultados.size() + " coincidencias:");
         System.out.println("───────────────────────────────");
         for (int i = 0; i < resultados.size(); i++) {
             System.out.println((i + 1) + ". " + resultados.get(i));
         }
-        System.out.println("0. Cancelar busqueda");
+        System.out.println("0. Cancelar búsqueda");
         System.out.println("───────────────────────────────");
 
         System.out.print("Seleccione un número: ");
@@ -246,12 +251,13 @@ public class ModuloBoveda extends ModuloBase {
             System.out.println("⚠ Selección inválida.");
             return;
         }
+
         String nombreSeleccionado = resultados.get(seleccion - 1);
         System.out.println("\n✔ Secreto: " + nombreSeleccionado);
         System.out.println("Valor: " + boveda.obtenerSecreto(nombreSeleccionado));
-
     }
-    /**
+
+    /**     //DESDE AQUÍ HASTA LA 328 SON NUEVAS
      * Permite actualizar el valor de un secreto existente.
      * Utiliza búsqueda inteligente para encontrar el secreto y solicita confirmación
      * antes de realizar la actualización.
@@ -267,7 +273,9 @@ public class ModuloBoveda extends ModuloBase {
             System.out.println("Sugerencia: Use la opción 'Listar secretos' para ver todos los disponibles.");
             return;
         }
+
         String nombreSecreto;
+
         // Si hay exactamente una coincidencia, usar directamente
         if (resultados.size() == 1) {
             nombreSecreto = resultados.get(0);
@@ -284,14 +292,17 @@ public class ModuloBoveda extends ModuloBase {
 
             System.out.print("Seleccione un número: ");
             int seleccion = leerOpcion();
+
             if (seleccion == 0) {
                 System.out.println("Actualización cancelada.");
                 return;
             }
+
             if (seleccion < 1 || seleccion > resultados.size()) {
                 System.out.println("⚠ Selección inválida.");
                 return;
             }
+
             nombreSecreto = resultados.get(seleccion - 1);
         }
 
@@ -302,14 +313,17 @@ public class ModuloBoveda extends ModuloBase {
         // Solicitar confirmación
         System.out.print("\n¿Desea modificar este secreto? (S/N): ");
         String confirmacion = leerLinea().trim().toUpperCase();
+
         if (!confirmacion.equals("S")) {
             System.out.println("Actualización cancelada.");
             return;
         }
+
         // Solicitar nuevo valor
         System.out.print("Nuevo valor del secreto: ");
         String nuevoValor = leerLinea();
+
         // Actualizar el secreto
         boveda.actualizarSecreto(nombreSecreto, nuevoValor);
-    }
+    }   //HASTA AQUÍ SON NUEVAS
 }

@@ -50,7 +50,7 @@ public class Boveda implements Serializable {
         }
     }
 
-    /**     //DESDE AQUI HASTA LA 78 SON NUEVAS
+    /**    
      * Verifica si un secreto existe en la bóveda.
      *
      * @param nombre Nombre del secreto a verificar
@@ -75,7 +75,7 @@ public class Boveda implements Serializable {
         secretos.put(nombre, nuevoValor);
         System.out.println("✔ Secreto '" + nombre + "' actualizado correctamente.");
         return true;
-    } //FIN DE LAS NUEVAS
+    } 
 
     // --- Métodos de Búsqueda Inteligente ---
 

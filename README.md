@@ -162,7 +162,7 @@ Valor: mi_contraseña_segura
 
 ---
 
-## 🏗️ Arquitectura
+### 🏗️ Arquitectura
 
 El proyecto implementa una arquitectura modular basada en **Programación Orientada a Objetos**:
 

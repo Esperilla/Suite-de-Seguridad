@@ -15,19 +15,19 @@ public class AlmacenamientoBoveda {
         try {
             // Obtener la ubicación base del classpath (carpeta out/)
             File ubicacionClase = new File(
-                    AlmacenamientoBoveda.class.getProtectionDomain()
-                            .getCodeSource()
-                            .getLocation()
-                            .toURI()
+                AlmacenamientoBoveda.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
             );
-
+            
             // getCodeSource() devuelve la raíz del classpath (out/), subir 1 nivel para llegar a la raíz del proyecto
             File raizProyecto = ubicacionClase.getParentFile();
-
+            
             rutaCalculada = new File(raizProyecto, "boveda.dat").getAbsolutePath();
-
+            
             System.out.println("[INFO] Ruta de boveda.dat: " + rutaCalculada);
-
+            
         } catch (URISyntaxException | NullPointerException e) {
             // Fallback a ruta relativa si falla la detección
             rutaCalculada = "boveda.dat";
@@ -56,13 +56,12 @@ public class AlmacenamientoBoveda {
             byte[] datosDescifrados = UtilidadesCifrado.descifrar(datosCifrados, clave);
 
             // 4. Convertimos bytes a Objeto Boveda
-
             Boveda bovedaCargada = Boveda.crearDesdeBytes(datosDescifrados);
             info("Bóveda cargada correctamente.");
             return bovedaCargada;
 
         } catch (javax.crypto.BadPaddingException e) {
-            warn("Intento de descifrado fallido");
+            warn("Intento de descifrado fallido.");
             throw new Exception("Contraseña incorrecta o archivo dañado.");
         }
     }

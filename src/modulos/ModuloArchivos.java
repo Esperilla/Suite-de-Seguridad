@@ -1,5 +1,6 @@
 package modulos;
 
+import modelos.RegistroBitacora;
 import modelos.UtilidadesCifrado;
 import javax.crypto.SecretKey;
 import java.io.Console;
@@ -72,6 +73,7 @@ public class ModuloArchivos extends ModuloBase {
             rutaArchivo = rutaArchivo.normalize();
 
             if (!Files.exists(rutaArchivo)) {
+                RegistroBitacora.error("Archivo no encontrado: " + rutaArchivo.getFileName());
                 System.out.println("Error: Archivo no encontrado.");
                 System.out.println("Ruta buscada: " + rutaArchivo);
                 return;
@@ -86,10 +88,12 @@ public class ModuloArchivos extends ModuloBase {
             boolean tieneExtensionLocked = rutaArchivo.toString().endsWith(".locked");
 
             if (esCifrado && tieneExtensionLocked) {
+                RegistroBitacora.warn("Archivo '" + rutaArchivo.getFileName() + " ya tiene extension .locked");
                 System.out.println("El archivo ya parece estar cifrado.");
                 return;
             }
             if (!esCifrado && !tieneExtensionLocked) {
+                RegistroBitacora.warn("Extension invalida para descifrar " + rutaArchivo.getFileName());
                 System.out.println("Para descifrar, el archivo debe terminar en .locked");
                 return;
             }
@@ -126,10 +130,14 @@ public class ModuloArchivos extends ModuloBase {
             // 4. Borrar original (para seguridad)
             Files.delete(rutaArchivo);
 
+            String operacion = esCifrado ? "cifrado" : "descifrado";
+            RegistroBitacora.info("Archivo '" + rutaArchivo.getFileName() + "' " + operacion + " correctamente.");
             System.out.println("Éxito. Archivo original eliminado.");
             System.out.println("Nuevo archivo: " + rutaSalida);
 
         } catch (Exception e) {
+            String operacion = esCifrado ? "cifrar" : "descifrar";
+            RegistroBitacora.error("Error al " + operacion + " archivo: " + e.getMessage());
             System.out.println("Error: " + e.getMessage());
         }
     }

@@ -2,6 +2,7 @@ package main;
 
 import modelos.Boveda;
 import modelos.AlmacenamientoBoveda;
+import modelos.RegistroBitacora;
 import modelos.UtilidadesCifrado;
 import modulos.ModuloBase;
 import modulos.ModuloArchivos;
@@ -24,6 +25,7 @@ public class Main {
     public static void main(String[] args) {
         // Verificamos que Console esté disponible (solo funciona en terminal real)
         if (console == null) {
+            RegistroBitacora.error("Programa ejecutado sin consola real.");
             System.err.println("Error: Este programa debe ejecutarse desde una terminal/consola real.");
             System.err.println("No se puede ejecutar desde un IDE. Use: java -cp <classpath> main.Main");
             System.exit(1);
@@ -70,6 +72,7 @@ public class Main {
                         moduloArchivos.ejecutar();
                         break;
                     case "3":
+                        RegistroBitacora.info("Aplicación cerrada por el usuario");
                         System.out.println("Cerrando programa... ¡Adiós!");
                         enEjecucion = false;
                         break;
@@ -79,6 +82,7 @@ public class Main {
             }
 
         } catch (Exception e) {
+            RegistroBitacora.error("Error Fatal: " + e.getMessage());
             System.err.println("Error fatal: " + e.getMessage());
         }
     }
@@ -109,12 +113,14 @@ public class Main {
         String nuevaContraVerificada = leerContrasena("Confirma contraseña: ");
 
         if (!nuevaContra.equals(nuevaContraVerificada)) {
+            RegistroBitacora.warn("Creación de bóveda cancelada: las contraseñas no coinciden.");
             throw new Exception("Las contraseñas no coinciden.");
         }
 
         contrasenaActual = nuevaContra;
         boveda = new Boveda();
         almacenamiento.guardarBoveda(boveda, contrasenaActual);
+        RegistroBitacora.info("Nueva bóveda creada exitosamente. ");
         System.out.println("¡Sistema configurado correctamente!");
     }
 
@@ -128,6 +134,7 @@ public class Main {
 
         boveda = almacenamiento.cargarBoveda(contraAlmacenada);
         contrasenaActual = contraAlmacenada;
+        RegistroBitacora.info("Inicio de sesión exitoso");
         System.out.println("¡Acceso concedido!");
     }
 

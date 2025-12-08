@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.URISyntaxException;
 import javax.crypto.SecretKey;
 
+import static modelos.RegistroBitacora.*;
+
 public class AlmacenamientoBoveda {
 
     private static final String NOMBRE_ARCHIVO;
@@ -54,9 +56,13 @@ public class AlmacenamientoBoveda {
             byte[] datosDescifrados = UtilidadesCifrado.descifrar(datosCifrados, clave);
 
             // 4. Convertimos bytes a Objeto Boveda
-            return Boveda.crearDesdeBytes(datosDescifrados);
+
+            Boveda bovedaCargada = Boveda.crearDesdeBytes(datosDescifrados);
+            info("Bóveda cargada correctamente.");
+            return bovedaCargada;
 
         } catch (javax.crypto.BadPaddingException e) {
+            warn("Intento de descifrado fallido");
             throw new Exception("Contraseña incorrecta o archivo dañado.");
         }
     }
@@ -73,5 +79,6 @@ public class AlmacenamientoBoveda {
         try (FileOutputStream archivoSalida = new FileOutputStream(NOMBRE_ARCHIVO)) {
             archivoSalida.write(datosCifrados);
         }
+        info("Bóveda guardada correctamente.");
     }
 }

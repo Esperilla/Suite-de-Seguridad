@@ -5,6 +5,7 @@ import modelos.AlmacenamientoBoveda;
 import modelos.UtilidadesCifrado;
 import java.io.Console;
 import java.util.List;
+import modelos.RegistroBitacora;
 
 public class ModuloBoveda extends ModuloBase {
 
@@ -131,8 +132,10 @@ public class ModuloBoveda extends ModuloBase {
                 intentos++;
                 int restantes = MAX_INTENTOS_CONTRASENA - intentos;
                 if (restantes > 0) {
+                    RegistroBitacora.warn("Contraseña incorrecta al cambiar contraseña maestra. Intentos restantes: " + restantes);
                     System.out.println("⚠ Contraseña incorrecta. Intentos restantes: " + restantes);
                 } else {
+                    RegistroBitacora.warn("Se agotaron los intentos de cambio de contraseña maestra.");
                     System.out.println("\n✖ Se agotaron los intentos. Operación cancelada por seguridad.");
                     return false;
                 }
@@ -175,6 +178,7 @@ public class ModuloBoveda extends ModuloBase {
         String confirmacion = leerContrasenaOculta("Confirme la nueva contraseña: ");
 
         if (!nuevaContrasena.equals(confirmacion)) {
+            RegistroBitacora.warn("Cambio de contraseña cancelado: las contraseñas no coinciden.");
             System.out.println("\n✖ Las contraseñas no coinciden. Operación cancelada.");
             return false;
         }
@@ -183,9 +187,11 @@ public class ModuloBoveda extends ModuloBase {
         try {
             almacenamiento.guardarBoveda(boveda, nuevaContrasena);
             this.contrasena = nuevaContrasena;
+            RegistroBitacora.info("Contraseña maestra cambiada exitosamente. ");
             System.out.println("\n✔ ¡Contraseña maestra cambiada exitosamente!");
             return true;
         } catch (Exception e) {
+            RegistroBitacora.error("Erro al cambiar contraseña maestra: " + e.getMessage());
             System.out.println("\n✖ Error al guardar la bóveda: " + e.getMessage());
             System.out.println("La contraseña NO fue cambiada.");
             return false;

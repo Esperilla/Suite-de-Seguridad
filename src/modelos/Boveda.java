@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static modelos.RegistroBitacora.*;
 /**
  * Representa la bóveda en memoria.
  * Guarda SOLAMENTE texto (String, String).
@@ -22,7 +23,6 @@ public class Boveda implements Serializable {
     // Mapa simple de String a String
     // Map se usa para almacenar pares clave-valor
     private Map<String, String> secretos;
-
     public Boveda() {
         this.secretos = new HashMap<>();
     }
@@ -31,6 +31,7 @@ public class Boveda implements Serializable {
 
     public void agregarSecreto(String nombre, String value) {
         secretos.put(nombre, value);
+        info("Se agregó un secreto '" + nombre + ".");
         System.out.println("Secreto '" + nombre + "' agregado.");
     }
 
@@ -44,8 +45,10 @@ public class Boveda implements Serializable {
 
     public void eliminarSecreto(String nombre) {
         if (secretos.remove(nombre) != null) {
+            info("Se eliminó el secreto '" + nombre + "'.");
             System.out.println("🗑️ Secreto '" + nombre + "' eliminado.");
         } else {
+            warn("Intento de eliminar secreto '" + nombre + "' que no existe");
             System.out.println("Error: No se encontró el secreto '" + nombre + "'.");
         }
     }
@@ -69,10 +72,12 @@ public class Boveda implements Serializable {
      */
     public boolean actualizarSecreto(String nombre, String nuevoValor) {
         if (!secretos.containsKey(nombre)) {
+            warn("Intento de actualizar secreto '" + nombre + "' que no exite");
             System.out.println("Error: El secreto '" + nombre + "' no existe.");
             return false;
         }
         secretos.put(nombre, nuevoValor);
+        info("Se actualizo el secreto '" + nombre + "'.");
         System.out.println("✔ Secreto '" + nombre + "' actualizado correctamente.");
         return true;
     } 
